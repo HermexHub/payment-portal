@@ -1,0 +1,23 @@
+name: hermex
+
+services:
+  payment-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payment-portal
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3001}:3001"
+    environment:
+      PORT: 3001
+      NODE_ENV: ${NODE_ENV:-production}
+      API_GATEWAY_URL: ${API_GATEWAY_URL:-http://api-gateway:4000}
+      NEXT_PUBLIC_STORE_URL: ${NEXT_PUBLIC_STORE_URL:-http://localhost:3000}
+    networks:
+      - hermex-network
+
+networks:
+  hermex-network:
+    name: hermex-network
+    external: true
