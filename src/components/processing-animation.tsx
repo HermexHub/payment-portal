@@ -137,7 +137,7 @@ export function ProcessingAnimation({
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-left text-xs space-y-2">
               <div className="flex justify-between text-slate-300">
                 <span>Amount Paid:</span>
-                <span className="font-bold text-white font-mono">${result.amount.toFixed(2)}</span>
+                <span className="font-bold text-white font-sans">{Math.round(result.amount).toLocaleString('uk-UA')} грн</span>
               </div>
               <div className="flex justify-between text-slate-300">
                 <span>Saga Status:</span>

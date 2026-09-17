@@ -45,8 +45,13 @@ export async function fetchPaymentSession(orderId: string): Promise<PaymentSessi
   return request<PaymentSession>(`/payments/${orderId}`)
 }
 
-export async function fetchOrderDetails(orderId: string): Promise<OrderDetails> {
-  return request<OrderDetails>(`/orders/${orderId}`)
+export async function fetchOrderDetails(orderId: string, token?: string | null): Promise<OrderDetails> {
+  const headers: Record<string, string> = {}
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+  const query = token ? `?token=${encodeURIComponent(token)}` : ''
+  return request<OrderDetails>(`/orders/${orderId}${query}`, { headers })
 }
 
 export async function confirmPaymentApi(

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import {
   ShieldCheck,
   Lock,
@@ -26,7 +26,9 @@ import { SagaScenarioSelector } from '@/components/saga-scenario-selector'
 export default function HostedPayPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const orderId = params?.id as string
+  const token = searchParams?.get('token')
 
   const storeUrl = process.env.NEXT_PUBLIC_STORE_URL || 'http://localhost:3000'
 
@@ -74,7 +76,7 @@ export default function HostedPayPage() {
       try {
         // Try fetching order details and payment session in parallel
         const [orderRes, sessionRes] = await Promise.allSettled([
-          fetchOrderDetails(orderId),
+          fetchOrderDetails(orderId, token),
           fetchPaymentSession(orderId)
         ])
 
@@ -96,7 +98,7 @@ export default function HostedPayPage() {
     }
 
     loadData()
-  }, [orderId])
+  }, [orderId, token])
 
   // Format card number with spaces every 4 digits
   const handleCardNumberChange = (val: string) => {
@@ -151,10 +153,16 @@ export default function HostedPayPage() {
     }
   }
 
+  const calculatedItemsTotal =
+    orderDetails?.items?.reduce(
+      (sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+      0
+    ) || 0
+
   const totalAmount =
-    paymentSession?.amount ??
-    orderDetails?.totalAmount ??
-    0
+    (paymentSession?.amount && Number(paymentSession.amount) > 0 ? Number(paymentSession.amount) : null) ??
+    (orderDetails?.totalAmount && Number(orderDetails.totalAmount) > 0 ? Number(orderDetails.totalAmount) : null) ??
+    (calculatedItemsTotal > 0 ? calculatedItemsTotal : 0)
 
   if (loading) {
     return (
@@ -234,7 +242,7 @@ export default function HostedPayPage() {
                       {item.productName || item.productId} × {item.quantity}
                     </span>
                     <span className="font-mono font-semibold text-white">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      {Math.round(item.price * item.quantity).toLocaleString('uk-UA')} грн
                     </span>
                   </div>
                 ))}
@@ -245,8 +253,8 @@ export default function HostedPayPage() {
             <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
               <div>
                 <span className="text-xs text-slate-400">Total Amount Due</span>
-                <p className="text-2xl font-bold text-white font-mono tracking-tight">
-                  ${totalAmount.toFixed(2)} <span className="text-xs text-slate-400 font-sans">USD</span>
+                <p className="text-2xl font-bold text-white font-sans tracking-tight">
+                  {Math.round(totalAmount).toLocaleString('uk-UA')} <span className="text-xs text-slate-400 font-sans">грн</span>
                 </p>
               </div>
               <div className="text-right">
@@ -363,7 +371,7 @@ export default function HostedPayPage() {
               className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 py-4 text-sm font-bold text-white transition-all shadow-xl shadow-blue-600/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Lock className="w-4 h-4" />
-              <span>Authorize & Pay ${totalAmount.toFixed(2)} USD</span>
+              <span>Authorize & Pay {Math.round(totalAmount).toLocaleString('uk-UA')} грн</span>
             </button>
 
             <p className="text-[11px] text-center text-slate-500">
