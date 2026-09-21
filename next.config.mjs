@@ -11,10 +11,12 @@ const nextConfig = {
     ]
   },
   async rewrites() {
+    const apiGatewayUrl =
+      process.env.API_GATEWAY_URL || 'http://localhost:4000'
     return [
       {
         source: '/api/v1/:path*',
-        destination: `${process.env.API_GATEWAY_URL}/api/v1/:path*`
+        destination: `${apiGatewayUrl}/api/v1/:path*`
       }
     ]
   }
