@@ -26,7 +26,8 @@ export interface OrderItem {
 }
 
 export interface OrderDetails {
-  id: string
+  id?: string
+  orderId?: string
   userId?: string
   status: string
   totalAmount: number
@@ -34,6 +35,7 @@ export interface OrderDetails {
   deliveryAddress?: string
   items?: OrderItem[]
   createdAt?: string
+  updatedAt?: string
 }
 
 export interface ConfirmPaymentRequest {

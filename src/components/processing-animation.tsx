@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { CheckCircle2, XCircle, Loader2, ShieldCheck, ArrowRight } from 'lucide-react'
+import { CheckCircle2, XCircle, Loader2, ArrowRight } from 'lucide-react'
 import { ConfirmPaymentResponse } from '@/lib/api/types'
 
 interface ProcessingAnimationProps {
@@ -25,9 +25,9 @@ export function ProcessingAnimation({
   const [countdown, setCountdown] = useState(4)
 
   const steps = [
-    { title: 'Securing Channel', desc: 'Establishing 256-bit TLS handshake' },
-    { title: 'Card Processing', desc: 'Authorizing with issuer network' },
-    { title: 'Saga Choreography', desc: 'Emitting RabbitMQ payment events' }
+    { title: 'З\'єднання з банком', desc: 'Надсилання платіжного запиту' },
+    { title: 'Авторизація', desc: 'Перевірка банком-емітентом' },
+    { title: 'Підтвердження', desc: 'Оновлення статусу замовлення' }
   ]
 
   useEffect(() => {
@@ -65,51 +65,51 @@ export function ProcessingAnimation({
   const isFailed = result?.status === 'FAILED' || !!error
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/90 p-6 sm:p-8 text-center shadow-2xl space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 text-center shadow-2xl space-y-6">
         {/* Loading State */}
         {isLoading && (
           <div className="space-y-6 py-4">
             <div className="relative mx-auto w-16 h-16 flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border-4 border-blue-500/20 animate-pulse" />
-              <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+              <div className="absolute inset-0 rounded-full border-4 border-blue-100 animate-pulse" />
+              <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-white tracking-tight">
-                Processing Transaction
+              <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+                Обробка платежу
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Communicating with banking network & Saga event bus...
+              <p className="text-xs text-slate-500 mt-1">
+                Зв'язок із банківською мережею та платіжним шлюзом...
               </p>
             </div>
 
             {/* Stepper Progress */}
-            <div className="space-y-3 text-left">
+            <div className="space-y-2.5 text-left">
               {steps.map((step, idx) => {
                 const isActive = currentStep === idx
                 const isDone = currentStep > idx
                 return (
                   <div
                     key={step.title}
-                    className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all text-xs ${
+                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all text-xs ${
                       isActive
-                        ? 'border-blue-500/40 bg-blue-500/10 text-blue-300'
+                        ? 'border-blue-300 bg-blue-50/70 text-blue-900 font-medium'
                         : isDone
-                        ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300'
-                        : 'border-slate-800/60 text-slate-500'
+                        ? 'border-emerald-200 bg-emerald-50/50 text-emerald-900'
+                        : 'border-slate-200 text-slate-400 bg-slate-50/50'
                     }`}
                   >
                     {isDone ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     ) : isActive ? (
-                      <Loader2 className="w-4 h-4 text-blue-400 animate-spin shrink-0" />
+                      <Loader2 className="w-4 h-4 text-blue-600 animate-spin shrink-0" />
                     ) : (
-                      <div className="w-4 h-4 rounded-full border border-slate-700 shrink-0" />
+                      <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
                     )}
                     <div>
                       <p className="font-semibold">{step.title}</p>
-                      <p className="text-[10px] text-slate-400">{step.desc}</p>
+                      <p className="text-[10px] text-slate-500">{step.desc}</p>
                     </div>
                   </div>
                 )
@@ -121,40 +121,40 @@ export function ProcessingAnimation({
         {/* Success State */}
         {!isLoading && isSuccess && (
           <div className="space-y-5 py-4">
-            <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+            <div className="mx-auto w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
               <CheckCircle2 className="w-9 h-9" />
             </div>
 
             <div>
-              <h3 className="text-xl font-bold text-white tracking-tight">
-                Payment Authorized!
+              <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                Оплату успішно підтверджено!
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Transaction ID: <span className="font-mono text-emerald-400">{result.paymentId}</span>
+              <p className="text-xs text-slate-500 mt-1">
+                ID транзакції: <span className="font-mono text-slate-700 font-semibold">{result.paymentId}</span>
               </p>
             </div>
 
-            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-left text-xs space-y-2">
-              <div className="flex justify-between text-slate-300">
-                <span>Amount Paid:</span>
-                <span className="font-bold text-white font-sans">{Math.round(result.amount).toLocaleString('uk-UA')} грн</span>
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 text-left text-xs space-y-2">
+              <div className="flex justify-between text-slate-600">
+                <span>Сплачена сума:</span>
+                <span className="font-bold text-slate-900 font-sans">{Math.round(result.amount).toLocaleString('uk-UA')} грн</span>
               </div>
-              <div className="flex justify-between text-slate-300">
-                <span>Saga Status:</span>
-                <span className="font-semibold text-emerald-400">order.confirmed published</span>
+              <div className="flex justify-between text-slate-600">
+                <span>Статус замовлення:</span>
+                <span className="font-semibold text-emerald-700">Підтверджено (CONFIRMED)</span>
               </div>
             </div>
 
-            <p className="text-xs text-slate-400">
-              Redirecting to live order tracking in <span className="font-bold text-white font-mono">{countdown}s</span>...
+            <p className="text-xs text-slate-500">
+              Перехід до відстеження замовлення через <span className="font-bold text-slate-900 font-mono">{countdown} с</span>...
             </p>
 
             <button
               type="button"
               onClick={() => (window.location.href = `${storeUrl}/orders/${orderId}`)}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-5 py-3 text-sm font-semibold text-white transition-all shadow-lg shadow-emerald-600/30"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-5 py-3.5 text-sm font-bold text-white transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
             >
-              <span>Track Live Order Now</span>
+              <span>Перейти до замовлення зараз</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -163,29 +163,26 @@ export function ProcessingAnimation({
         {/* Failed State */}
         {!isLoading && isFailed && (
           <div className="space-y-5 py-4">
-            <div className="mx-auto w-16 h-16 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+            <div className="mx-auto w-16 h-16 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
               <XCircle className="w-9 h-9" />
             </div>
 
             <div>
-              <h3 className="text-xl font-bold text-white tracking-tight">
-                Payment Declined
+              <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                Оплату відхилено
               </h3>
-              <p className="text-xs text-rose-300 mt-1">
-                {result?.failureReason || error || 'Transaction could not be completed.'}
+              <p className="text-xs text-rose-600 mt-1">
+                {result?.failureReason || error || 'Не вдалося завершити транзакцію.'}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-4 text-left text-xs space-y-1.5">
-              <p className="text-slate-300 font-semibold">Saga Event Orchestration:</p>
-              <p className="text-slate-400 font-mono text-[11px]">
-                ➔ Emitted <span className="text-rose-400 font-bold">payment.failed</span> to RabbitMQ
+            <div className="rounded-2xl border border-rose-100 bg-rose-50/50 p-4 text-left text-xs space-y-1.5 text-slate-600">
+              <p className="font-semibold text-slate-800">Результат операції:</p>
+              <p className="text-[11px]">
+                ➔ Банк-емітент відхилив списання коштів
               </p>
-              <p className="text-slate-400 font-mono text-[11px]">
-                ➔ Inventory Service released reserved items
-              </p>
-              <p className="text-slate-400 font-mono text-[11px]">
-                ➔ Order status set to <span className="text-rose-400 font-bold">CANCELLED</span>
+              <p className="text-[11px]">
+                ➔ Резерв товарів автоматично повернуто на склад
               </p>
             </div>
 
@@ -193,16 +190,16 @@ export function ProcessingAnimation({
               <button
                 type="button"
                 onClick={onRetry}
-                className="flex-1 rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-2.5 text-xs font-semibold text-white transition-all border border-slate-700"
+                className="flex-1 rounded-2xl bg-slate-100 hover:bg-slate-200 px-4 py-3 text-xs font-bold text-slate-800 transition-all border border-slate-200 cursor-pointer"
               >
-                Change Card / Retry
+                Змінити картку
               </button>
               <button
                 type="button"
                 onClick={() => (window.location.href = `${storeUrl}/orders/${orderId}`)}
-                className="flex-1 rounded-xl bg-rose-600 hover:bg-rose-500 px-4 py-2.5 text-xs font-semibold text-white transition-all shadow-md shadow-rose-600/20"
+                className="flex-1 rounded-2xl bg-rose-600 hover:bg-rose-700 px-4 py-3 text-xs font-bold text-white transition-all shadow-sm shadow-rose-600/20 cursor-pointer"
               >
-                View Order Log
+                До деталей замовлення
               </button>
             </div>
           </div>

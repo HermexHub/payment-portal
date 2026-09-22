@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react'
-import { CheckCircle, AlertOctagon, Clock, CreditCard, Ban } from 'lucide-react'
+import React, { useState } from 'react'
+import { CheckCircle, AlertOctagon, Clock, CreditCard, Ban, ChevronDown } from 'lucide-react'
 import { PaymentScenario } from '@/lib/api/types'
 
 interface SagaScenarioSelectorProps {
@@ -24,104 +24,121 @@ export function SagaScenarioSelector({
   currentScenario,
   onSelect
 }: SagaScenarioSelectorProps) {
+  const [isOpen, setIsOpen] = useState(false)
+
   const scenarios: ScenarioOption[] = [
     {
       key: 'SUCCESS',
-      label: 'Success (Happy Path)',
-      icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />,
-      badgeColor: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20',
+      label: 'Успіх (Happy Path)',
+      icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />,
+      badgeColor: 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
       cardNumber: '4242 4242 4242 4242',
       expiry: '12/28',
       cvv: '123',
-      description: 'Funds charged successfully; Saga confirms order status to CONFIRMED'
+      description: 'Кошти списано успішно. Saga підтверджує замовлення зі статусом CONFIRMED.'
     },
     {
       key: 'INSUFFICIENT_FUNDS',
-      label: 'No Funds (Rollback)',
-      icon: <AlertOctagon className="w-3.5 h-3.5 text-rose-400" />,
-      badgeColor: 'border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20',
+      label: 'Немає коштів (Rollback)',
+      icon: <AlertOctagon className="w-3.5 h-3.5 text-rose-600" />,
+      badgeColor: 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100',
       cardNumber: '4242 4242 4242 0116',
       expiry: '12/28',
       cvv: '123',
-      description: 'Payment fails; triggers Inventory compensation & order cancellation'
+      description: 'Списання відхилено. Запускається компенсація складу та скасування замовлення.'
     },
     {
       key: 'CARD_EXPIRED',
-      label: 'Expired Card',
-      icon: <CreditCard className="w-3.5 h-3.5 text-amber-400" />,
-      badgeColor: 'border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20',
+      label: 'Картка прострочена',
+      icon: <CreditCard className="w-3.5 h-3.5 text-amber-600" />,
+      badgeColor: 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100',
       cardNumber: '4242 4242 4242 0069',
       expiry: '12/28',
       cvv: '123',
-      description: 'Card rejected as expired; triggers full compensating rollback'
+      description: 'Картка відхилена як прострочена. Повний відкат Saga-транзакції.'
     },
     {
       key: 'BANK_DECLINE',
-      label: 'Bank Decline',
-      icon: <Ban className="w-3.5 h-3.5 text-purple-400" />,
-      badgeColor: 'border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20',
+      label: 'Відмова банку',
+      icon: <Ban className="w-3.5 h-3.5 text-purple-600" />,
+      badgeColor: 'border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100',
       cardNumber: '4242 4242 4242 0002',
       expiry: '12/28',
       cvv: '123',
-      description: 'Issuer refuses transaction; unlocks reserved inventory'
+      description: 'Банк-емітент відхилив операцію. Розблокування зарезервованого товару.'
     },
     {
       key: 'TIMEOUT',
-      label: 'Timeout / DLQ',
-      icon: <Clock className="w-3.5 h-3.5 text-blue-400" />,
-      badgeColor: 'border-blue-500/30 bg-blue-500/10 text-blue-300 hover:bg-blue-500/20',
+      label: 'Таймаут / DLQ',
+      icon: <Clock className="w-3.5 h-3.5 text-blue-600" />,
+      badgeColor: 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100',
       cardNumber: '4242 4242 4242 9999',
       expiry: '12/28',
       cvv: '123',
-      description: 'Simulates network latency and Dead Letter Queue failover'
+      description: 'Симуляція мережевого таймауту та обробки через Dead Letter Queue.'
     }
   ]
 
   return (
-    <div className="space-y-3 rounded-2xl border border-indigo-900/50 bg-indigo-950/20 p-5 backdrop-blur-md">
-      <div className="flex items-center justify-between">
+    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs transition-all">
+      {/* Accordion Toggle Header */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 transition-colors text-xs font-semibold text-slate-700 cursor-pointer select-none"
+      >
         <div className="flex items-center gap-2">
-          <span className="text-base">🧪</span>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-300">
-            Saga Interactive Simulator (Test Lab)
-          </h3>
+          <span className="text-sm">🧪</span>
+          <span className="font-bold text-slate-800">Тестова лабораторія Saga (Developer Mode)</span>
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-          Auto-fill 1-Click
-        </span>
-      </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-semibold">
+            {currentScenario}
+          </span>
+          <ChevronDown
+            className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </div>
+      </button>
 
-      <p className="text-xs text-slate-400">
-        Choose a scenario to simulate RabbitMQ event choreography and compensation rollbacks:
-      </p>
+      {/* Expandable Body */}
+      {isOpen && (
+        <div className="p-4 border-t border-slate-100 space-y-3 bg-slate-50/50">
+          <p className="text-xs text-slate-500">
+            Оберіть тестовий сценарій для симуляції поведінки хореографії подій RabbitMQ:
+          </p>
 
-      {/* Scenario Chips */}
-      <div className="flex flex-wrap gap-2">
-        {scenarios.map((sc) => {
-          const isActive = currentScenario === sc.key
-          return (
-            <button
-              key={sc.key}
-              type="button"
-              onClick={() => onSelect(sc.key, sc.cardNumber, sc.expiry, sc.cvv)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all duration-200 ${
-                isActive
-                  ? 'border-white/50 bg-white/15 text-white shadow-md ring-1 ring-white/30'
-                  : sc.badgeColor
-              }`}
-            >
-              {sc.icon}
-              <span>{sc.label}</span>
-            </button>
-          )
-        })}
-      </div>
+          {/* Scenario Chips */}
+          <div className="flex flex-wrap gap-2">
+            {scenarios.map((sc) => {
+              const isActive = currentScenario === sc.key
+              return (
+                <button
+                  key={sc.key}
+                  type="button"
+                  onClick={() => onSelect(sc.key, sc.cardNumber, sc.expiry, sc.cvv)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
+                    isActive
+                      ? 'border-blue-600 bg-blue-600 text-white shadow-xs'
+                      : sc.badgeColor
+                  }`}
+                >
+                  {sc.icon}
+                  <span>{sc.label}</span>
+                </button>
+              )
+            })}
+          </div>
 
-      {/* Active Scenario Explainer */}
-      <div className="text-[11px] font-mono text-slate-400 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/80">
-        <span className="text-indigo-400 font-semibold">Simulation Target: </span>
-        {scenarios.find((s) => s.key === currentScenario)?.description}
-      </div>
+          {/* Active Scenario Explainer */}
+          <div className="text-[11px] text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200">
+            <span className="text-blue-700 font-semibold">Опис сценарію: </span>
+            {scenarios.find((s) => s.key === currentScenario)?.description}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
